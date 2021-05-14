@@ -30,22 +30,19 @@ Resident residentList[6];
 
 void initResident(Resident* res);
 void initPrefList(Preference prefList[4]);
+void printResident(Resident* res);
 
 int main(){
 	Resident res;
 	initResident(&res);
-	printf("Resident Pref List: \n");
-	for (int i =0; i < 4; ++i){
-		printf("{%d", res.prefList[i].brand);
-		printf("%d}\n", res.prefList[i].segment);
-	}
+	printResident(&res);	
 	return EXIT_SUCCESS;
 }
 
 void initResident(Resident* res){
+	srand(time(NULL));
 	initPrefList(res->prefList);
-	res->loanAmount = LOAN_AMOUNTS[2];
-//	memcpy(ATTEMPTS, res->attempts, sizeof(int) * 4);
+	res->loanAmount = LOAN_AMOUNTS[rand() % 4];
 }
 
 void initPrefList(Preference prefList[4]){
@@ -66,4 +63,15 @@ void initPrefList(Preference prefList[4]){
 		record[randBrand][randSeg] = 1;
 		prefList[i].remainingAttempts = MAX_ATTEMPT;
 	}
+}
+
+void printResident(Resident* res){
+	printf("Resident:\n");
+	printf("Preference List:");
+	printf("Resident Pref List: \n");
+	for (int i =0; i < 4; ++i){
+		printf("{Brand: %d, ", res->prefList[i].brand);
+		printf("Segment: %d}, Remaining Attempts: %d\n", res->prefList[i].segment, res->prefList[i].remainingAttempts);
+	}
+	printf("Loan Amount: %d", res->loanAmount);
 }
