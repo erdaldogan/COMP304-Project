@@ -3,7 +3,6 @@
 #include <string.h>
 #include <semaphore.h>
 #include <pthread.h>
-#include <time.h>
 
 #include "headers/dealer.h"
 #include "headers/preference.h"
@@ -15,48 +14,32 @@ int brands[4] = {B1, B2, B3, B4};
 int showroomCapacity[4][3] = {{2,2,2}, {2,2,1}, {2,1,1}, {1,1,1}};
 
 Resident residentList[6];
-Dealer dealers[4]; // 0: Brand1 Dealer1, 1: Brand2 Dealer2 ...
+Dealer dealerList[4]; // 0: Brand1 Dealer1, 1: Brand2 Dealer2 ...
 
 int main(){
-	Resident res1, res2, res3, res4, res5, res6;
-	initResident(&res1);
-	printResident(&res1);
+	srand(time(NULL));
+	int i;
+	for (i = 0; i < 6; i++){
+		initResident(&residentList[i]);
+	}
+	for (i = 0; i < 4; i++){
+		initDealer(&dealerList[i], i);
+		printSegmentPrices(&dealerList[i]);
+		printInventory(&dealerList[i]);
+	}
 
-	initResident(&res2);
-	printResident(&res2);
+	pthread_t update_tid[4]; // update price threads
+	pthread_attr_t attr;
 
-	initResident(&res3);
-	printResident(&res3);
-
-	initResident(&res4);
-	printResident(&res4);
-
-	initResident(&res5);
-	printResident(&res5);
-
-	initResident(&res6);
-	printResident(&res6);
-
-	Dealer d1, d2, d3, d4;
-	initDealer(&d1, 0);
-	initDealer(&d2, 1);
-	initDealer(&d3, 2);
-	initDealer(&d4, 3);
-
-	printSegmentPrices(&d1);
-	printInventory(&d1);
-
-	printSegmentPrices(&d2);
-	printInventory(&d2);
-
-	printSegmentPrices(&d3);
-	printInventory(&d3);
-
-	printSegmentPrices(&d4);
-	printInventory(&d4);
-
-
-
+	/* get the default attributes*/
+	pthread_attr_init(&attr);
+	for (i = 0; i < 4; ++i){
+		pthread_create(&update_tid[i], &attr, updatePrices, &dealerList[i]);
+		printf("Created new thread, ID: %d\n",(int) update_tid[i]);
+	}
+	for (i = 0; i < 4; ++i){
+		pthread_join(update_tid[i], NULL);
+	}
 	return EXIT_SUCCESS;
 }
 

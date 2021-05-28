@@ -3,9 +3,6 @@
 
 #define MAX_ATTEMPT 2
 
-//int segments[3];
-//int brands[4];
-
 void initPrefList(Preference prefList[4]){
 	//srand(time(NULL));
 	int record[4][3] = {0};

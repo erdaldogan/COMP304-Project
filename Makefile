@@ -1,5 +1,7 @@
 # -*- MakeFile -*-
 
+OUT_DIR = obj/
+
 #target: dependencies
 #	action
 
@@ -8,16 +10,16 @@ main: main.o resident.o preference.o dealer.o
 
 main.o: main.c
 	cc -c main.c
-	mv main.o obj/
+	mv main.o $(OUT_DIR)
 
 resident.o: resident.c
 	cc -c resident.c
-	mv resident.o obj/
+	mv resident.o $(OUT_DIR)
 
 preference.o: preference.c
 	cc -c preference.c
-	mv preference.o obj/
+	mv preference.o $(OUT_DIR)
 
 dealer.o: dealer.c
 	cc -c dealer.c
-	mv dealer.o obj/
+	mv dealer.o $(OUT_DIR)
