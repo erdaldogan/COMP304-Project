@@ -36,8 +36,7 @@ void* shop(void* resident){
 	Brand prefBrand;
 	Preference currPref; // current preference
 	for (i = 0; i < 4; ++i){
-		currPref = r->prefList[i];
-		while (currPref.remainingAttempts > 0){
+		while ((currPref = r->prefList[i]).remainingAttempts > 0){	
 			prefBrand = currPref.brand;
 			sem_wait(&reprLock[prefBrand]);
 			printf("Semaphore Acquired for brand %d\n", prefBrand);
