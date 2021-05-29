@@ -1,6 +1,9 @@
 #ifndef RESIDENT_H
 #define RESIDENT_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <semaphore.h>
 #include <pthread.h>
 

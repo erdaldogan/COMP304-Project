@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "headers/preference.h"
 
 #define MAX_ATTEMPT 2

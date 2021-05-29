@@ -1,6 +1,7 @@
 #ifndef PREF_H
 #define PREF_H
 
+#include <stdlib.h>
 #include "enums.h"
 
 extern int segments[3];

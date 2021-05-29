@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
 #include "headers/resident.h"
 
 int LOAN_AMOUNTS[4] = {200000, 300000, 400000, 500000};
