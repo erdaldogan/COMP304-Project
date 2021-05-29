@@ -1,8 +1,3 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <semaphore.h>
-#include <pthread.h>
-
 #include "headers/dealer.h"
 #include "headers/preference.h"
 #include "headers/resident.h"
