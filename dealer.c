@@ -6,9 +6,10 @@
 
 #include "headers/dealer.h"
 
-const int factor[2] = {-1, 1};
+const int factor[2] = {-1, 1}; // used to determine whether to increase or decrease the price
 
 void setInventory(Dealer* d, int brand){
+	/* set the inventory of the dealer by reading the showroomCapacity defined in main */
 	for (int i = 0; i < 3; ++i){
 		d->inventory[i] = showroomCapacity[brand][i];
 	}
@@ -16,6 +17,8 @@ void setInventory(Dealer* d, int brand){
 }
 
 void setSegmentPrices(Dealer* d){
+	/* set the initial car prices randomly, in range 200,000 to 500,000 */
+	/* prices increase for the higher segment cars */
 	int lower = 200, upper = 500;
 	int i;
 	for (i = 0; i < 3; ++i){
@@ -26,19 +29,21 @@ void setSegmentPrices(Dealer* d){
 }
 
 void initDealer(Dealer* d, int brand){
+	/* initialize the dealer attributes. inventory, prices and brand */
 	setInventory(d, brand);
 	setSegmentPrices(d);
 	d->brand = brands[brand];
 }
 
 void printSegmentPrices(Dealer* d){
-//	printf("\nDealer of brand  %d\n", d->brand);
+	/* print the car prices of cars in given dealer */
 	for (int i = 0; i < 3; ++i){
 		printf("Seg %d: TL%d ", segments[i], d->priceList[i]);
 	}
 }
 
 void printInventory(Dealer* d){
+	/* print the inventory of given dealer */
 	for (int i = 0; i < 3; ++i){
 		printf("Seg %d, Stck: %d; ", i, d->inventory[i]);
 	}
@@ -46,12 +51,12 @@ void printInventory(Dealer* d){
 }
 
 void* updatePrices(void* dealer){
+	/* this function runs as a seperate thread */
+	/* update the car prices in random intervals, up to 15% */
 	Dealer* d = (Dealer *) dealer;
 	int direction, currPrice, delta;
 	float changePercentage;
 	while (1){
-		printf("Before\n");
-		printSegmentPrices(d);
 		sleep(2);
 		direction = factor[rand() % 2]; // -1 or 1, randomly selected
 		changePercentage = rand() % 15 / 100.0; // up to 15% increase or decrease 
@@ -61,9 +66,6 @@ void* updatePrices(void* dealer){
 			delta = (currPrice * changePercentage) * direction; 
 			d->priceList[i] = currPrice + delta;
 		}
-		printf("After\n");
-		printSegmentPrices(d);
-		printf("\n\n\n");
-
+		printf("Dealer Updated Price");
 	}
 }

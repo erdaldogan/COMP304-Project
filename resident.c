@@ -7,10 +7,11 @@
 int LOAN_AMOUNTS[4] = {200000, 300000, 400000, 500000};
 
 void initResident(Resident* res){
+	/* initialize the resident */
 	initPrefList(res->prefList);
-	res->loanAmount = LOAN_AMOUNTS[rand() % 4];
+	res->loanAmount = LOAN_AMOUNTS[rand() % 4]; // choosen randomly among the options
 	printf("New resident initiated. ");
-	printf("PL: {");
+	printf("PL: {"); // Preference List
 	for (int i = 0; i< 4; ++i){
 		printf("B: %d, S: %d ", res->prefList[i].brand, res->prefList[i].segment);
 	}
@@ -18,6 +19,7 @@ void initResident(Resident* res){
 }
 
 void printResident(Resident* res){
+	/* print the resident and it's attributes */
 	printf("Resident:\n");
 	printf("Pref List: \n");
 	for (int i =0; i < 4; ++i){
