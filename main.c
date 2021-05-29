@@ -15,6 +15,10 @@ int showroomCapacity[4][3] = {{2,2,2}, {2,2,1}, {2,1,1}, {1,1,1}};
 Resident residentList[6];
 Dealer dealerList[4]; // 0: Brand1 Dealer1, 1: Brand2 Dealer2 ...
 
+pthread_mutex_t priceListLock[4];
+sem_t reprLock[4]; // 2 representatives per dealer
+const char sem_names[4] = {'1', '2', '3', '4'};
+
 int main(){
 	srand(time(NULL));
 	int i;
@@ -27,17 +31,28 @@ int main(){
 		printInventory(&dealerList[i]);
 	}
 
-	pthread_t update_tid[4]; // update price threads
+	pthread_t priceUpdateThreads[4]; // threads for update price 
+	pthread_t residentThreads[6]; // threads for residents
 	pthread_attr_t attr;
 
 	/* get the default attributes*/
 	pthread_attr_init(&attr);
+
 	for (i = 0; i < 4; ++i){
-		pthread_create(&update_tid[i], &attr, updatePrices, &dealerList[i]);
-		printf("Created new thread, ID: %d\n",(int) update_tid[i]);
+		pthread_mutex_init(&priceListLock[i], NULL); // init with default attr
+		sem_open(&sem_names[i], O_CREAT, 0644, 2);
+		pthread_create(&priceUpdateThreads[i], &attr, updatePrices, &dealerList[i]);
+		printf("Created new thread, ID: %d\n",(int) priceUpdateThreads[i]);
+	}
+	
+	for (i = 0; i < 6; ++i){
+		pthread_create(&residentThreads[i], &attr, shop, &residentList[i]);
+	}
+	for (i = 0; i < 6; ++i){
+		pthread_join(residentThreads[i], NULL);
 	}
 	for (i = 0; i < 4; ++i){
-		pthread_join(update_tid[i], NULL);
+		pthread_join(priceUpdateThreads[i], NULL);
 	}
 	return EXIT_SUCCESS;
 }

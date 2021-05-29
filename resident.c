@@ -30,3 +30,20 @@ void printResident(Resident* res){
 	printf("\n");
 }
 
+void* shop(void* resident){
+	Resident* r = (Resident*) resident;
+	int i;
+	Brand prefBrand;
+	Preference currPref; // current preference
+	for (i = 0; i < 4; ++i){
+		currPref = r->prefList[i];
+		if (currPref.remainingAttempts <= 0)
+			continue;
+		prefBrand = currPref.brand;
+		sem_wait(&reprLock[prefBrand]);
+		printf("Semaphore Acquired for brand %d\n", prefBrand);
+		sem_post(&reprLock[prefBrand]);
+		r->prefList[i].remainingAttempts--; // decrease the remaining attempts;
+		printf("Semaphore released for brand %d\n", prefBrand);
+	}
+}
