@@ -32,19 +32,41 @@ void printResident(Resident* res){
 
 void* shop(void* resident){
 	Resident* r = (Resident*) resident;
-	int i;
+	int i, inventory, price, tid = (int) pthread_self();
 	Brand prefBrand;
+	Segment prefSegment;
 	Preference currPref; // current preference
 	for (i = 0; i < 4; ++i){
 		while ((currPref = r->prefList[i]).remainingAttempts > 0){	
 			prefBrand = currPref.brand;
+			prefSegment = currPref.segment;
+
 			sem_wait(&reprLock[prefBrand]);
-			printf("Semaphore Acquired for brand %d\n", prefBrand);
+			printf("TID: %d; Semaphore Acquired for brand %d\n", tid, prefBrand);
+			pthread_mutex_lock(&priceListLock[prefBrand]);
+			pthread_mutex_lock(&inventoryLock);
+
+			inventory = showroomCapacity[prefBrand][prefSegment];
+			price = dealerList[prefBrand].priceList[prefSegment];
+
+			if (inventory > 0 && r->loanAmount >= price){
+				showroomCapacity[prefBrand][prefSegment]--;
+				printf("TID: %d; Resident bought Brand %d, Segment %d\n", tid, prefBrand, prefSegment);
+				pthread_mutex_unlock(&inventoryLock);
+				pthread_mutex_unlock(&priceListLock[prefBrand]);
+				sem_post(&reprLock[prefBrand]);
+				printf("TID: %d; Success! Exiting Thread\n", tid);
+				pthread_exit(0);
+			}
+			pthread_mutex_unlock(&inventoryLock);	
+			pthread_mutex_unlock(&priceListLock[prefBrand]);
 			sem_post(&reprLock[prefBrand]);
 			r->prefList[i].remainingAttempts--; // decrease the remaining attempts;
-			printf("Semaphore released for brand %d\n", prefBrand);
-
+			printf("TID: %d; Failed attempt to buy; B: %d, S: %d, Remained: %d\n",
+			tid, prefBrand, prefSegment, r->prefList[i].remainingAttempts);
+			printf("TID: %d; Semaphore released for brand %d\n", tid, prefBrand);
+			sleep(rand() % 4);
 		}
-
 	}
+	pthread_exit(0);
 }

@@ -38,17 +38,18 @@ void printSegmentPrices(Dealer* d){
 
 void printInventory(Dealer* d){
 	/* print the inventory of given dealer */
+	printf("Brand: %d {", d->brand);
 	for (int i = 0; i < 3; ++i){
-		printf("Seg %d, Stck: %d; ", i, d->inventory[i]);
+		printf("Seg %d, St.: %d Pr.: TL%d; ", i, d->inventory[i], d->priceList[i]);
 	}
-	printf("\n");
+	printf("}\n");
 }
 
 void* updatePrices(void* dealer){
 	/* this function runs as a seperate thread */
 	/* update the car prices in random intervals, up to 15% */
 	Dealer* d = (Dealer *) dealer;
-	int direction, currPrice, delta;
+	int direction, currPrice, delta, tid = (int) pthread_self();
 	float changePercentage;
 	while (1){
 		sleep(rand() % 4); // sleep for random amount of time, max 3 secs
@@ -56,8 +57,8 @@ void* updatePrices(void* dealer){
 		changePercentage = rand() % 15 / 100.0; // up to 15% increase or decrease 
 		//printf("tid: %d, D: %d, P: %.3f\n", (int) pthread_self(), direction, changePercentage);
 		if (pthread_mutex_lock(&priceListLock[d->brand]) == 0)
-			printf("Price Table Price Update Lock Acquired! TID: %d\n", (int) pthread_self());
-		else { fprintf(stderr, "Error while acquiring lock! TID: %d\n", (int) pthread_self()); }
+			printf("TID: %d; Price Table Price Update Lock Acquired!\n", tid);
+		else { fprintf(stderr, "TID: %d; Error while acquiring lock!\n", tid); }
 		/* critical section */
 		for (int i = 0; i < 3; ++i){
 			currPrice = d->priceList[i];
@@ -66,7 +67,8 @@ void* updatePrices(void* dealer){
 		}
 		/* cs end*/
 		if (pthread_mutex_unlock(&priceListLock[d->brand]) == 0)
-			printf("Price Table Price Update Lock Released! TID: %d\n\n", (int) pthread_self());
-		else { fprintf(stderr, "Error while releasing lock! TID: %d\n", (int) pthread_self()); }
+			printf("TID: %d; Price Table Price Update Lock Released!\n", tid);
+		else { fprintf(stderr, "TID: %d; Error while releasing lock!\n", tid); }
+		printInventory(d);
 	}
 }

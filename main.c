@@ -16,7 +16,9 @@ Resident residentList[6];
 Dealer dealerList[4]; // 0: Brand1 Dealer1, 1: Brand2 Dealer2 ...
 
 pthread_mutex_t priceListLock[4];
-sem_t reprLock[4]; // 2 representatives per dealer
+pthread_mutex_t inventoryLock;
+
+sem_t reprLock[4]; // representative semaphore
 const char sem_names[4] = {'1', '2', '3', '4'};
 
 int main(){
@@ -25,34 +27,37 @@ int main(){
 	for (i = 0; i < 6; i++){
 		initResident(&residentList[i]);
 	}
-	for (i = 0; i < 4; i++){
+	for (int i = 0; i < 4; ++i){	
 		initDealer(&dealerList[i], i);
-		printSegmentPrices(&dealerList[i]);
 		printInventory(&dealerList[i]);
 	}
 
-	pthread_t priceUpdateThreads[4]; // threads for update price 
+	pthread_t priceUpdateThreads[4]; // threads for dealer to update price 
 	pthread_t residentThreads[6]; // threads for residents
 	pthread_attr_t attr;
 
 	/* get the default attributes*/
 	pthread_attr_init(&attr);
+	pthread_mutex_init(&inventoryLock, NULL);
 
 	for (i = 0; i < 4; ++i){
 		pthread_mutex_init(&priceListLock[i], NULL); // init with default attr
-		sem_open(&sem_names[i], O_CREAT, 0644, 2);
+		sem_open(&sem_names[i], O_CREAT, 0644, 2); // 2 representative per dealer
 		pthread_create(&priceUpdateThreads[i], &attr, updatePrices, &dealerList[i]);
-		printf("Created new thread, ID: %d\n",(int) priceUpdateThreads[i]);
+		printf("Created new price update thread, TID: %d\n",(int) priceUpdateThreads[i]);
 	}
-	
+
 	for (i = 0; i < 6; ++i){
 		pthread_create(&residentThreads[i], &attr, shop, &residentList[i]);
 	}
 	for (i = 0; i < 6; ++i){
 		pthread_join(residentThreads[i], NULL);
 	}
+	printf("\n\n** Resident threads terminated (joined) successfully **\n");
+	printf("** Dealer price update threads are being terminated... **\n");
 	for (i = 0; i < 4; ++i){
-		pthread_join(priceUpdateThreads[i], NULL);
+		if (pthread_cancel(priceUpdateThreads[i]) == 0)
+			printf("Dealer %d thread termination success\n", i);
 	}
 	return EXIT_SUCCESS;
 }
