@@ -2,8 +2,11 @@
 
 OUT_DIR = obj/
 
+
 #target: dependencies
 #	action
+
+$(shell mkdir -p obj)
 
 main: main.o resident.o preference.o dealer.o
 	cc obj/main.o obj/resident.o obj/preference.o obj/dealer.o -o main.out
