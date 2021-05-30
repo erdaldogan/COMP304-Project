@@ -10,7 +10,7 @@
 #include "dealer.h"
 
 extern int showroomCapacity[4][3];
-extern sem_t reprLock[4];
+extern sem_t* reprLock[8];
 extern pthread_mutex_t inventoryLock;
 extern pthread_mutex_t priceListLock[4];
 extern Dealer dealerList[4];

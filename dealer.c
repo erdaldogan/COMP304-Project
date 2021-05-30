@@ -49,10 +49,8 @@ void* updatePrices(void* dealer){
 		sleep(rand() % 4); // sleep for random amount of time, max 3 secs
 		direction = factor[rand() % 2]; // -1 or 1, randomly selected
 		changePercentage = rand() % 15 / 100.0; // up to 15% increase or decrease 
-		//printf("tid: %d, D: %d, P: %.3f\n", (int) pthread_self(), direction, changePercentage);
-		if (pthread_mutex_lock(&priceListLock[d->brand]) == 0)
-			printf("Dealer: %d; Price Table Price Update Lock Acquired!\n", brand);
-		else { fprintf(stderr, "Dealer: %d; Error while acquiring lock!\n", brand); }
+		if (pthread_mutex_lock(&priceListLock[d->brand]) != 0)
+			fprintf(stderr, "Dealer: %d; Error while acquiring lock!\n", brand);
 		/* critical section */
 		for (int i = 0; i < 3; ++i){
 			currPrice = d->priceList[i];
@@ -62,8 +60,7 @@ void* updatePrices(void* dealer){
 		printf("Dealer %d; Updated Prices\n", brand);
 		printInventory(d);
 		/* cs end*/
-		if (pthread_mutex_unlock(&priceListLock[d->brand]) == 0)
-			printf("Dealer: %d; Price Table Price Update Lock Released!\n", brand);
-		else { fprintf(stderr, "Dealer: %d; Error while releasing lock!\n", brand); }
+		if (pthread_mutex_unlock(&priceListLock[d->brand]) != 0)
+			fprintf(stderr, "Dealer: %d; Error while releasing lock!\n", brand);
 	}
 }

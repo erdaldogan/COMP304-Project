@@ -13,8 +13,8 @@ Dealer dealerList[4]; // 0: Brand1 Dealer1, 1: Brand2 Dealer2 ...
 pthread_mutex_t priceListLock[4];
 pthread_mutex_t inventoryLock;
 
-sem_t reprLock[4]; // representative semaphore
-const char sem_names[4] = {'1', '2', '3', '4'};
+sem_t* reprLock[8]; // representative semaphore
+const char sem_names[8] = {'1', '2', '3', '4', '5', '6', '7', '8'};
 
 int main(){
 	srand(time(NULL));
@@ -35,9 +35,11 @@ int main(){
 	pthread_attr_init(&attr);
 	pthread_mutex_init(&inventoryLock, NULL);
 
+	for (i = 0; i < 8; ++i){
+		reprLock[i] = sem_open(&sem_names[i], O_CREAT, 0644, 1); // 2 representative per dealer
+	}
 	for (i = 0; i < 4; ++i){
 		pthread_mutex_init(&priceListLock[i], NULL); // init with default attr
-		sem_open(&sem_names[i], O_CREAT, 0644, 2); // 2 representative per dealer
 		pthread_create(&priceUpdateThreads[i], &attr, updatePrices, &dealerList[i]);
 	}
 

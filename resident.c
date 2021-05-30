@@ -1,3 +1,5 @@
+#include <errno.h>
+#include <string.h>
 #include "headers/resident.h"
 
 int LOAN_AMOUNTS[4] = {200000, 300000, 400000, 500000};
@@ -29,17 +31,31 @@ void printResident(Resident* res){
 
 void* shop(void* resident){
 	Resident* r = (Resident*) resident;
-	int i, inventory, price, rid = r->id;
+	int i, inventory, price, reprLockIdx, rid = r->id;
 	Brand prefBrand;
 	Segment prefSegment;
 	Preference currPref; // current preference
+	int repr1, repr2, reprNo;
 	for (i = 0; i < 4; ++i){
 		while ((currPref = r->prefList[i]).remainingAttempts > 0){	
 			prefBrand = currPref.brand;
 			prefSegment = currPref.segment;
-
-			sem_wait(&reprLock[prefBrand]);
-			printf("Resident: %d; Semaphore Acquired for brand %d\n", rid, prefBrand);
+			reprLockIdx = prefBrand * 2;
+			while (1 == 1){
+				if (sem_trywait(reprLock[reprLockIdx]) == 0){
+					reprNo = 1;
+					printf("SUCESSSSS");
+					break;
+				}
+				else if (sem_trywait(reprLock[reprLockIdx + 1]) == 0){
+					reprNo = 2;
+					printf("SUCESSSSS");
+					break;
+				}
+			}
+			
+				
+			printf("Resident: %d; Semaphore acquired for representative %d of brand %d\n", rid, reprNo, prefBrand);
 			pthread_mutex_lock(&inventoryLock);
 			pthread_mutex_lock(&priceListLock[prefBrand]);
 			/* critical segment */
@@ -58,7 +74,10 @@ void* shop(void* resident){
 				printf("Resident: %d; Resident bought Brand %d, Segment %d for TL%d\n", rid, prefBrand, prefSegment, price);
 				pthread_mutex_unlock(&inventoryLock);
 				pthread_mutex_unlock(&priceListLock[prefBrand]);
-				sem_post(&reprLock[prefBrand]);
+				if (repr2 == 1)
+					sem_post(reprLock[reprLockIdx + 1]);
+				else
+					sem_post(reprLock[reprLockIdx]);
 				printf("Resident: %d; Semaphore released for brand %d\n", rid, prefBrand);
 				printf("Resident: %d; Success! Exiting Thread\n", rid);
 				pthread_exit(0);
@@ -66,7 +85,10 @@ void* shop(void* resident){
 			pthread_mutex_unlock(&priceListLock[prefBrand]);
 			pthread_mutex_unlock(&inventoryLock);
 			/* cs end */
-			sem_post(&reprLock[prefBrand]);
+			if (repr2 == 1)
+				sem_post(reprLock[reprLockIdx + 1]);
+			else
+				sem_post(reprLock[reprLockIdx]);
 			r->prefList[i].remainingAttempts--; // decrease the remaining attempts;
 			//printf("TID: %d; Failed attempt to buy; B: %d, S: %d, Remained: %d\n",
 					//tid, prefBrand, prefSegment, r->prefList[i].remainingAttempts);

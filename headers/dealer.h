@@ -15,7 +15,6 @@ extern int segments[3];
 extern int brands[4];
 
 extern pthread_mutex_t priceListLock[4];
-extern sem_t reprLock[4];
 
 typedef struct {
 	int inventory[3]; // 0: A-Segment, 1: B-Segment, 2: C-Segment
