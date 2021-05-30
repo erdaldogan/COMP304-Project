@@ -29,15 +29,9 @@ void initDealer(Dealer* d, int brand){
 	d->brand = brands[brand];
 }
 
-void printSegmentPrices(Dealer* d){
-	/* print the car prices of cars in given dealer */
-	for (int i = 0; i < 3; ++i){
-		printf("Seg %d: TL%d ", segments[i], d->priceList[i]);
-	}
-}
-
 void printInventory(Dealer* d){
 	/* print the inventory of given dealer */
+	printf("Dealer %d inventory: ", d->brand);
 	printf("Brand: %d {", d->brand);
 	for (int i = 0; i < 3; ++i){
 		printf("Seg %d, St.: %d Pr.: TL%d; ", i, d->inventory[i], d->priceList[i]);
@@ -49,7 +43,7 @@ void* updatePrices(void* dealer){
 	/* this function runs as a seperate thread */
 	/* update the car prices in random intervals, up to 15% */
 	Dealer* d = (Dealer *) dealer;
-	int direction, currPrice, delta, tid = (int) pthread_self();
+	int direction, currPrice, delta, brand = d->brand;
 	float changePercentage;
 	while (1){
 		sleep(rand() % 4); // sleep for random amount of time, max 3 secs
@@ -57,8 +51,8 @@ void* updatePrices(void* dealer){
 		changePercentage = rand() % 15 / 100.0; // up to 15% increase or decrease 
 		//printf("tid: %d, D: %d, P: %.3f\n", (int) pthread_self(), direction, changePercentage);
 		if (pthread_mutex_lock(&priceListLock[d->brand]) == 0)
-			printf("TID: %d; Price Table Price Update Lock Acquired!\n", tid);
-		else { fprintf(stderr, "TID: %d; Error while acquiring lock!\n", tid); }
+			printf("Dealer: %d; Price Table Price Update Lock Acquired!\n", brand);
+		else { fprintf(stderr, "Dealer: %d; Error while acquiring lock!\n", brand); }
 		/* critical section */
 		for (int i = 0; i < 3; ++i){
 			currPrice = d->priceList[i];
@@ -67,8 +61,8 @@ void* updatePrices(void* dealer){
 		}
 		/* cs end*/
 		if (pthread_mutex_unlock(&priceListLock[d->brand]) == 0)
-			printf("TID: %d; Price Table Price Update Lock Released!\n", tid);
-		else { fprintf(stderr, "TID: %d; Error while releasing lock!\n", tid); }
+			printf("Dealer: %d; Price Table Price Update Lock Released!\n", brand);
+		else { fprintf(stderr, "Dealer: %d; Error while releasing lock!\n", brand); }
 		printInventory(d);
 	}
 }

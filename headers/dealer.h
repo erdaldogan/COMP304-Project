@@ -25,7 +25,6 @@ typedef struct {
 
 
 void setSegmentPrices(Dealer* d);
-void printSegmentPrices(Dealer* d);
 void printInventory(Dealer* d);
 void initDealer(Dealer *d, int brand);
 void* updatePrices(void *d);
