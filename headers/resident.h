@@ -18,9 +18,10 @@ extern Dealer dealerList[4];
 typedef struct {
 	Preference prefList[4];
 	int loanAmount;
+	int id;
 } Resident;
 
-void initResident(Resident* res);
+void initResident(Resident* res, int id);
 void printResident(Resident* res);
 void* shop(void* resident);
 #endif /* RESIDENT_H */
