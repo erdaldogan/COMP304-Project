@@ -59,10 +59,11 @@ void* updatePrices(void* dealer){
 			delta = (currPrice * changePercentage) * direction; 
 			d->priceList[i] = currPrice + delta;
 		}
+		printf("Dealer %d; Updated Prices\n", brand);
+		printInventory(d);
 		/* cs end*/
 		if (pthread_mutex_unlock(&priceListLock[d->brand]) == 0)
 			printf("Dealer: %d; Price Table Price Update Lock Released!\n", brand);
 		else { fprintf(stderr, "Dealer: %d; Error while releasing lock!\n", brand); }
-		printInventory(d);
 	}
 }
