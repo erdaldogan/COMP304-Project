@@ -6,7 +6,6 @@
 #include <time.h>
 #include <semaphore.h>
 #include <pthread.h>
-
 #include "preference.h"
 #include "dealer.h"
 
@@ -24,7 +23,5 @@ typedef struct {
 void initResident(Resident* res);
 void printResident(Resident* res);
 void* shop(void* resident);
-
 #endif /* RESIDENT_H */
-
 

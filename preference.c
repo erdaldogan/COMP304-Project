@@ -1,5 +1,4 @@
 #include "headers/preference.h"
-
 #define MAX_ATTEMPT 2
 
 void initPrefList(Preference prefList[4]){

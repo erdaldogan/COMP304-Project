@@ -39,30 +39,40 @@ void* shop(void* resident){
 
 			sem_wait(&reprLock[prefBrand]);
 			printf("TID: %d; Semaphore Acquired for brand %d\n", tid, prefBrand);
-			pthread_mutex_lock(&priceListLock[prefBrand]);
 			pthread_mutex_lock(&inventoryLock);
-
+			pthread_mutex_lock(&priceListLock[prefBrand]);
+			/* critical segment */
 			inventory = showroomCapacity[prefBrand][prefSegment];
 			price = dealerList[prefBrand].priceList[prefSegment];
+			if (inventory <= 0){
+				printf("TID: %d, Failed attempt to buy. Out of stock!\n", tid);
+			}
+			else if (r->loanAmount < price){
+				printf("TID: %d, Failed attempt to buy. Cannot afford! Loan Amt.: %d, Price: %d\n",
+				tid, r->loanAmount, price);
 
-			if (inventory > 0 && r->loanAmount >= price){
+			}
+			else {
 				showroomCapacity[prefBrand][prefSegment]--;
 				printf("TID: %d; Resident bought Brand %d, Segment %d\n", tid, prefBrand, prefSegment);
 				pthread_mutex_unlock(&inventoryLock);
 				pthread_mutex_unlock(&priceListLock[prefBrand]);
 				sem_post(&reprLock[prefBrand]);
+				printf("TID: %d; Semaphore released for brand %d\n", tid, prefBrand);
 				printf("TID: %d; Success! Exiting Thread\n", tid);
 				pthread_exit(0);
 			}
-			pthread_mutex_unlock(&inventoryLock);	
 			pthread_mutex_unlock(&priceListLock[prefBrand]);
+			pthread_mutex_unlock(&inventoryLock);
+			/* cs end */
 			sem_post(&reprLock[prefBrand]);
 			r->prefList[i].remainingAttempts--; // decrease the remaining attempts;
-			printf("TID: %d; Failed attempt to buy; B: %d, S: %d, Remained: %d\n",
-			tid, prefBrand, prefSegment, r->prefList[i].remainingAttempts);
+			//printf("TID: %d; Failed attempt to buy; B: %d, S: %d, Remained: %d\n",
+					//tid, prefBrand, prefSegment, r->prefList[i].remainingAttempts);
 			printf("TID: %d; Semaphore released for brand %d\n", tid, prefBrand);
 			sleep(rand() % 4);
 		}
+		sleep(5);
 	}
 	pthread_exit(0);
 }

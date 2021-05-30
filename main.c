@@ -39,7 +39,6 @@ int main(){
 		pthread_mutex_init(&priceListLock[i], NULL); // init with default attr
 		sem_open(&sem_names[i], O_CREAT, 0644, 2); // 2 representative per dealer
 		pthread_create(&priceUpdateThreads[i], &attr, updatePrices, &dealerList[i]);
-		printf("Created new price update thread, TID: %d\n",(int) priceUpdateThreads[i]);
 	}
 
 	for (i = 0; i < 6; ++i){
