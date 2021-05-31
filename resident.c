@@ -51,10 +51,10 @@ void* shop(void* resident){
 					break;
 				}
 			}	
+			printf("Resident: %d; Semaphore acquired for representative %d of brand %d\n", rid, reprNo, prefBrand);
 			pthread_mutex_lock(&inventoryLock);
 			pthread_mutex_lock(&priceListLock[prefBrand]);
 			/* critical segment */
-			printf("Resident: %d; Semaphore acquired for representative %d of brand %d\n", rid, reprNo, prefBrand);
 			inventory = showroomCapacity[prefBrand][prefSegment];
 			price = dealerList[prefBrand].priceList[prefSegment];
 			if (inventory <= 0){
@@ -71,9 +71,9 @@ void* shop(void* resident){
 				pthread_mutex_unlock(&inventoryLock);
 				pthread_mutex_unlock(&priceListLock[prefBrand]);
 				if (reprNo == 1)
-					sem_post(reprLock[reprLockIdx + 1]);
-				else
 					sem_post(reprLock[reprLockIdx]);
+				else
+					sem_post(reprLock[reprLockIdx + 1]);
 				printf("Resident: %d; Semaphore released for representative %d of brand %d\n", rid, reprNo, prefBrand);
 				printf("Resident: %d; Success! Exiting Thread\n", rid);
 				pthread_exit(0);
