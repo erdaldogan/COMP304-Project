@@ -31,12 +31,12 @@ void initDealer(Dealer* d, int brand){
 
 void printInventory(Dealer* d){
 	/* print the inventory of given dealer */
-	printf("Dealer %d inventory: ", d->brand);
-	printf("Brand: %d {", d->brand);
+	printf("{");
+	//printf("Dealer %4d; Inventory: {", d->brand);
 	for (int i = 0; i < 3; ++i){
 		printf("Seg %d, St.: %d Pr.: TL%d; ", i, d->inventory[i], d->priceList[i]);
 	}
-	printf("}\n");
+	printf("\b\b}\n");
 }
 
 void* updatePrices(void* dealer){
@@ -57,7 +57,7 @@ void* updatePrices(void* dealer){
 			delta = (currPrice * changePercentage) * direction; 
 			d->priceList[i] = currPrice + delta;
 		}
-		printf("Dealer %d; Updated Prices\n", brand);
+		printf("Dealer %4d; Updated Prices ", brand);
 		printInventory(d);
 		/* cs end*/
 		if (pthread_mutex_unlock(&priceListLock[d->brand]) != 0)
