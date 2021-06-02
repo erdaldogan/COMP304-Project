@@ -51,7 +51,7 @@ void* shop(void* resident){
 					break;
 				}
 			}	
-			printf("Resident: %d; Semaphore acquired for representative %d of brand %d\n", rid, reprNo, prefBrand);
+			printf("Resident: %d; Semaphore acquired for representative %d of brand %d, segment %d\n", rid, reprNo, prefBrand, prefSegment);
 			pthread_mutex_lock(&inventoryLock);
 			pthread_mutex_lock(&priceListLock[prefBrand]);
 			/* critical segment */
